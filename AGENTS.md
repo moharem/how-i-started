@@ -24,7 +24,8 @@ Online, installable on a phone, seeded with 4 sample stories, and the admin can 
 ## Hosting and security
 
 - Static site on **GitHub Pages**. Data and admin login on **Supabase**.
-- Search engines are blocked (`noindex` + `robots.txt`) until public launch. The site is unlisted, not private.
+- Live site: https://moharem.github.io/how-i-started/ (base path `/how-i-started/`).
+- Search engines are blocked with a `noindex` meta tag until public launch. The site is unlisted, not private. (`public/robots.txt` only takes effect once the site has its own domain, because crawlers read robots.txt from the domain root.)
 - Only the Supabase **publishable (anon) key** may appear in the repo. All access control lives in Postgres Row Level Security and database functions. The service/secret key must never be committed.
 
 ## Languages and text direction
