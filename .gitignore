@@ -6,4 +6,5 @@ dev-dist
 !.env.example
 .DS_Store
 *.log
-.claude
+.claude/*
+!.claude/settings.json

@@ -1,6 +1,6 @@
 # How I Started (بدأت إزاي؟)
 
-This file is the single source of truth for this project. Every coding agent (Claude, Codex, Cursor, etc.) should read it first. Update it whenever a decision changes.
+This file is the single source of truth for this project and the only instruction file. Codex and Claude Code both read it directly. There is no `CLAUDE.md`: adding one would stop Claude Code reading this file. Update it whenever a decision changes.
 
 ## What this is
 
@@ -17,6 +17,62 @@ A mobile-first web app (installable PWA, no app stores) where entrepreneurs shar
 - Build in small steps, one feature at a time, so each one can be tested before the next.
 - Budget: $0 (free tiers only). A domain gets bought before public launch.
 
+## Working agreement
+
+These rules exist so Omar can always tell what changed and who changed it.
+
+### Announce before acting
+
+State what you are about to do, then do it. This covers creating files or directories, running scripts that write to disk, installing dependencies, and fetching from the internet. "Announce" means a plain sentence before the tool call, not a summary afterwards. A batch of ten files is one announcement. Reading, searching and inspecting need no announcement.
+
+### Identity: always the personal account
+
+This is a personal project. Omar also has a company GitHub account (`moharem-ak`, `omar.moharem@akelius.de`) on the same machine: **never commit, push or open PRs with it.**
+
+Before every commit, push or `gh` write action, check:
+
+- `git config user.name` is `moharem` and `git config user.email` is `omar.moharem96@gmail.com` (set in this repo's local git config). If not, fix them with `git config user.name moharem` and `git config user.email omar.moharem96@gmail.com`.
+- `gh auth status` shows `moharem` as the active account. If not, run `gh auth switch -u moharem`.
+
+### Never contribute as an AI
+
+Commits and PRs are authored by Omar. Write commit messages and PR bodies with **no** AI attribution: no `Co-Authored-By` footer, no "Generated with" line. `.claude/settings.json` turns off Claude Code's attribution.
+
+### Git: the agent merges on Omar's word
+
+- The default branch is `master`.
+- Every change goes on its own branch from `master` and is merged back one PR at a time. Parallel work runs in separate worktrees. A session that starts on an app-created branch (`claude/<name>`) renames it with `git branch -m` before any work.
+- Branch names: `ticket/<number>-<short-slug>` when there is a GitHub issue (the PR body says `Closes #<number>`), otherwise by type: `feat/<slug>`, `fix/<slug>`, `docs/<slug>` or `chore/<slug>`.
+- On a branch the agent commits, pushes, rebases onto `master`, and opens the PR. When it is ready, ask Omar whether to merge. Each merge waits for his "merge". Then run `gh pr merge <number> --merge --delete-branch`, and finish with the remote and local branch deleted and local `master` fast-forwarded. In a worktree, detach HEAD (`git switch --detach`) before deleting its branch.
+- Versions follow semantic versioning (`vMAJOR.MINOR.PATCH`).
+
+### Follow the conventions already here
+
+When a project pattern is unclear (file layout, naming, whether some file belongs), ask which convention is in use. Where the repo already shows a pattern, follow it over a personal preference.
+
+### When the plan changes, stop
+
+If something discovered mid-task means the agreed plan no longer makes sense, say so and wait for a decision.
+
+### Report accurately
+
+Say what was actually done, including what failed and what was skipped. Where it is unclear who or what changed something on disk, say it is unclear.
+
+### Writing
+
+Never write em dashes (the long dash, Unicode U+2014) in docs, comments, UI text, commit messages or PRs. Use a colon, comma, period or parentheses instead.
+
+### Testing
+
+- Test critical logic: language choice, invite tokens and expiry, validation, data transformations. Leave simple UI rendering and routing config untested.
+- Test files sit beside their source: `lang.ts` → `lang.test.ts`.
+- Mock the Supabase client in unit tests. Database security rules are tested against the real dev database with SQL, never against production data.
+- One behaviour per test, with a descriptive name. Keep existing tests running: fix the code rather than skipping a test.
+
+### Agent tooling
+
+- Library docs (React, Vite, Tailwind, Supabase): use the Context7 MCP when it is connected, before web search.
+
 ## Definition of done (v1 prototype)
 
 Online, installable on a phone, seeded with 4 sample stories, and the admin can create, approve and publish stories end to end.
@@ -27,6 +83,10 @@ Online, installable on a phone, seeded with 4 sample stories, and the admin can 
 - Live site: https://moharem.github.io/how-i-started/ (base path `/how-i-started/`).
 - Search engines are blocked with a `noindex` meta tag until public launch. The site is unlisted, not private. (`public/robots.txt` only takes effect once the site has its own domain, because crawlers read robots.txt from the domain root.)
 - Only the Supabase **publishable (anon) key** may appear in the repo. All access control lives in Postgres Row Level Security and database functions. The service/secret key must never be committed.
+- Every table has RLS enabled with explicit policies. Admin checks use `auth.uid()`, never a client-provided user ID.
+- Validate input in the database (constraints and function checks), not only in the browser.
+- Keep tokens, passwords and personal data out of logs.
+- Run the Supabase security advisors after every schema change.
 
 ## Languages and text direction
 
@@ -121,7 +181,7 @@ Agreed 2026-10-31. Use the current stable version of each.
 | Data + admin auth | Supabase (Postgres + RLS + database functions), `@supabase/supabase-js`          |
 | Lint/format       | Biome                                                                            |
 | Tests             | Vitest for logic (invite expiry, language choice, validation)                    |
-| Deploy            | GitHub Actions → GitHub Pages on every push to `main`                            |
+| Deploy            | GitHub Actions → GitHub Pages on every push to `master`                          |
 
 Notes:
 - Supabase: this project lives in Omar's **`rehla`** organization (second account), which the Supabase MCP tool is connected to. Never create or change anything in the `SolveSystems` organization for this project. The other project in `rehla` ("rehla's Project") belongs to something else: don't touch it.

@@ -22,4 +22,4 @@ Then open http://localhost:5173/how-i-started/
 - `npm run check` lint and format check (Biome)
 - `npm run build` production build into `dist/`
 
-Every push to `main` deploys to GitHub Pages.
+Every push to `master` deploys to GitHub Pages.
