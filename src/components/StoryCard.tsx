@@ -1,13 +1,7 @@
 import { Fragment, type ReactNode } from 'react'
 import { Link } from 'react-router'
 import { CAPITAL_RANGES } from '../data/options'
-import {
-  formatMonths,
-  founderName,
-  governorateLabel,
-  industryLabel,
-  type Story,
-} from '../data/story'
+import { founderName, governorateLabel, industryLabel, type Story } from '../data/story'
 import { useLang } from '../i18n/LangContext'
 import { dirOf, type Lang } from '../i18n/lang'
 
@@ -69,7 +63,7 @@ export function StoryCard({ story }: { story: Story }) {
         </div>
         <div className="rounded-xl bg-paper p-2">
           <dt className="text-ink/60">{t.firstRevenue}</dt>
-          <dd className="font-semibold">{formatMonths(story.months_to_revenue, uiLang)}</dd>
+          <dd className="font-semibold">{t.months(story.months_to_revenue)}</dd>
         </div>
       </dl>
     </Link>

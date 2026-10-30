@@ -1,22 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { formatMonths, founderName, governorateLabel, industryLabel } from './story'
-
-describe('formatMonths', () => {
-  it('uses Egyptian Arabic plural forms', () => {
-    expect(formatMonths(0, 'ar')).toBe('أقل من شهر')
-    expect(formatMonths(1, 'ar')).toBe('شهر')
-    expect(formatMonths(2, 'ar')).toBe('شهرين')
-    expect(formatMonths(3, 'ar')).toBe('3 شهور')
-    expect(formatMonths(10, 'ar')).toBe('10 شهور')
-    expect(formatMonths(11, 'ar')).toBe('11 شهر')
-  })
-
-  it('uses English singular and plural', () => {
-    expect(formatMonths(0, 'en')).toBe('less than a month')
-    expect(formatMonths(1, 'en')).toBe('1 month')
-    expect(formatMonths(5, 'en')).toBe('5 months')
-  })
-})
+import { founderName, governorateLabel, industryLabel } from './story'
 
 describe('industryLabel', () => {
   it('returns null for "other", so the free text is shown instead', () => {

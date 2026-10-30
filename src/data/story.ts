@@ -1,5 +1,4 @@
 import type { Lang } from '../i18n/lang'
-import { supabase } from '../lib/supabase'
 import {
   type CapitalRange,
   GOVERNORATES,
@@ -50,16 +49,6 @@ export type Story = {
   q_advice: string | null
 }
 
-/** Published stories, newest first. The database only returns published rows. */
-export async function fetchPublishedStories(): Promise<Story[]> {
-  const { data, error } = await supabase
-    .from('stories')
-    .select('*')
-    .order('published_at', { ascending: false })
-  if (error) throw error
-  return data as Story[]
-}
-
 /** A translated option label, or null when the founder typed free text instead. */
 export function industryLabel(story: Pick<Story, 'industry'>, uiLang: Lang): string | null {
   if (story.industry === 'other') return null
@@ -75,17 +64,4 @@ export function governorateLabel(story: Pick<Story, 'governorate'>, uiLang: Lang
 export function founderName(story: Pick<Story, 'founder_name'>): string | null {
   const name = story.founder_name?.trim()
   return name ? name : null
-}
-
-/** "3 months", or the Egyptian Arabic form ("شهرين", "3 شهور", "11 شهر"). */
-export function formatMonths(n: number, uiLang: Lang): string {
-  if (uiLang === 'en') {
-    if (n === 0) return 'less than a month'
-    return n === 1 ? '1 month' : `${n} months`
-  }
-  if (n === 0) return 'أقل من شهر'
-  if (n === 1) return 'شهر'
-  if (n === 2) return 'شهرين'
-  if (n <= 10) return `${n} شهور`
-  return `${n} شهر`
 }

@@ -83,6 +83,7 @@ Online, installable on a phone, seeded with 4 sample stories, and the admin can 
 - Live site: https://moharem.github.io/how-i-started/ (base path `/how-i-started/`).
 - Search engines are blocked with a `noindex` meta tag until public launch. The site is unlisted, not private. (`public/robots.txt` only takes effect once the site has its own domain, because crawlers read robots.txt from the domain root.)
 - Only the Supabase **publishable (anon) key** may appear in the repo. All access control lives in Postgres Row Level Security and database functions. The service/secret key must never be committed.
+- **Never store secrets in `public.stories`** (invite or edit tokens, admin notes, anything private). Readers can see every column of a published story. Secrets go in their own table that the public cannot read.
 - Every table has RLS enabled with explicit policies. Admin checks use `auth.uid()`, never a client-provided user ID.
 - Validate input in the database (constraints and function checks), not only in the browser.
 - Keep tokens, passwords and personal data out of logs.
@@ -109,7 +110,7 @@ Online, installable on a phone, seeded with 4 sample stories, and the admin can 
 
 ## v1 pages
 
-1. **Home**: story cards, newest first. Each card shows business name, founder name or "Anonymous", industry, location, capital range, and months to first revenue. **No filters and no search in v1.**
+1. **Home**: story cards, newest first (by publish date). Each card shows business name, founder name or "Anonymous", industry, location, capital range, and months to first revenue. **No filters and no search in v1.**
 2. **Story page**: a "starting point" summary card with the key numbers at the top, then the answers to the story questions. No photos in v1.
 3. **Founder form**: reachable only through an invite link. **There is no public form.**
 4. **Admin**: create and cancel invite links, see pending stories, edit any story, publish and unpublish, see a list of recent founder edits with one-click undo to the previous version, and hide all sample stories with one action.
@@ -133,7 +134,7 @@ Required: business name, industry, location, year started, starting capital rang
 | Story language                     | `ar` / `en`                                                                                                                                   |
 | Industry                           | food & drinks, fashion, tech, services, retail, education, health & beauty, crafts & handmade, **other (+ free text)**                        |
 | Location                           | one of the 27 Egyptian governorates + optional city, **or** "Outside Egypt" + country + city                                                  |
-| Year started                       | number                                                                                                                                        |
+| Year started                       | number, not in the future                                                                                                                     |
 | Starting capital range             | 0 / under 10k / 10k–50k / 50k–200k / 200k–1M / 1M+ EGP                                                                                        |
 | Exact amount                       | optional                                                                                                                                      |
 | Original currency note             | optional free text for stories that started abroad (e.g. "20,000 AED"). The founder picks the closest EGP range. **EGP only, no conversion.** |

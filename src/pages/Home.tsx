@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { StoryCard } from '../components/StoryCard'
-import { fetchPublishedStories, type Story } from '../data/story'
+import { fetchPublishedStories } from '../data/storiesApi'
+import type { Story } from '../data/story'
 import { useLang } from '../i18n/LangContext'
 
 type State = { kind: 'loading' } | { kind: 'error' } | { kind: 'ready'; stories: Story[] }

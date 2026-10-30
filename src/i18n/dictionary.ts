@@ -13,6 +13,14 @@ const ar = {
   startedWith: 'فلوس البداية',
   firstRevenue: 'أول إيراد بعد',
   listSeparator: '، ',
+  /** Egyptian Arabic counting: شهر، شهرين، 3 شهور، 11 شهر */
+  months: (n: number): string => {
+    if (n === 0) return 'أقل من شهر'
+    if (n === 1) return 'شهر'
+    if (n === 2) return 'شهرين'
+    if (n <= 10) return `${n} شهور`
+    return `${n} شهر`
+  },
   switchTo: 'English',
   notFound: 'الصفحة دي مش موجودة.',
   backHome: 'ارجع للرئيسية',
@@ -31,6 +39,10 @@ const en: typeof ar = {
   startedWith: 'Starting money',
   firstRevenue: 'First revenue after',
   listSeparator: ', ',
+  months: (n: number): string => {
+    if (n === 0) return 'less than a month'
+    return n === 1 ? '1 month' : `${n} months`
+  },
   switchTo: 'عربي',
   notFound: 'This page does not exist.',
   backHome: 'Back to home',
