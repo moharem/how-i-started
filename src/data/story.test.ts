@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { formatMonths, industryLabel, regionLabel } from './story'
+import { formatMonths, founderName, governorateLabel, industryLabel } from './story'
 
 describe('formatMonths', () => {
   it('uses Egyptian Arabic plural forms', () => {
@@ -19,25 +19,34 @@ describe('formatMonths', () => {
 })
 
 describe('industryLabel', () => {
-  it('shows the free text when the industry is "other"', () => {
-    expect(industryLabel({ industry: 'other', industry_other: 'Car wash' }, 'ar')).toBe('Car wash')
+  it('returns null for "other", so the free text is shown instead', () => {
+    expect(industryLabel({ industry: 'other' }, 'ar')).toBeNull()
   })
 
   it('translates listed industries', () => {
-    expect(industryLabel({ industry: 'food', industry_other: null }, 'ar')).toBe('أكل ومشروبات')
-    expect(industryLabel({ industry: 'food', industry_other: null }, 'en')).toBe('Food & drinks')
+    expect(industryLabel({ industry: 'food' }, 'ar')).toBe('أكل ومشروبات')
+    expect(industryLabel({ industry: 'food' }, 'en')).toBe('Food & drinks')
   })
 })
 
-describe('regionLabel', () => {
+describe('governorateLabel', () => {
   it('translates Egyptian governorates', () => {
-    const s = { location_type: 'egypt', governorate: 'aswan', country: null } as const
-    expect(regionLabel(s, 'en')).toBe('Aswan')
-    expect(regionLabel(s, 'ar')).toBe('أسوان')
+    expect(governorateLabel({ governorate: 'aswan' }, 'en')).toBe('Aswan')
+    expect(governorateLabel({ governorate: 'aswan' }, 'ar')).toBe('أسوان')
   })
 
-  it('shows the country for stories that started abroad', () => {
-    const s = { location_type: 'abroad', governorate: null, country: 'Dubai, UAE' } as const
-    expect(regionLabel(s, 'ar')).toBe('Dubai, UAE')
+  it('returns null for stories that started abroad', () => {
+    expect(governorateLabel({ governorate: null }, 'ar')).toBeNull()
+  })
+})
+
+describe('founderName', () => {
+  it('treats empty or blank names as anonymous', () => {
+    expect(founderName({ founder_name: null })).toBeNull()
+    expect(founderName({ founder_name: '   ' })).toBeNull()
+  })
+
+  it('trims real names', () => {
+    expect(founderName({ founder_name: ' Mona ' })).toBe('Mona')
   })
 })

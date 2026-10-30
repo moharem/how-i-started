@@ -4,6 +4,12 @@ import type { Lang } from '../i18n/lang'
 
 type Labels<K extends string> = Record<K, Record<Lang, string>>
 
+export const STORY_STATUSES = ['pending', 'published', 'unpublished'] as const
+export type StoryStatus = (typeof STORY_STATUSES)[number]
+
+export const LOCATION_TYPES = ['egypt', 'abroad'] as const
+export type LocationType = (typeof LOCATION_TYPES)[number]
+
 export const INDUSTRIES = {
   food: { ar: 'أكل ومشروبات', en: 'Food & drinks' },
   fashion: { ar: 'موضة وملابس', en: 'Fashion' },

@@ -1,27 +1,31 @@
 import type { Lang } from '../i18n/lang'
 import { supabase } from '../lib/supabase'
 import {
-  CAPITAL_RANGES,
   type CapitalRange,
   GOVERNORATES,
   type Governorate,
   INDUSTRIES,
   type Industry,
+  type LocationType,
   type MoneySource,
   type Outcome,
+  type StoryStatus,
   type WorkMode,
 } from './options'
 
 export type Story = {
   id: string
+  status: StoryStatus
   is_sample: boolean
   published_at: string | null
+  created_at: string
+  updated_at: string
   lang: Lang
   business_name: string
   founder_name: string | null
   industry: Industry
   industry_other: string | null
-  location_type: 'egypt' | 'abroad'
+  location_type: LocationType
   governorate: Governorate | null
   city: string | null
   country: string | null
@@ -56,29 +60,26 @@ export async function fetchPublishedStories(): Promise<Story[]> {
   return data as Story[]
 }
 
-export function industryLabel(story: Pick<Story, 'industry' | 'industry_other'>, ui: Lang) {
-  if (story.industry === 'other' && story.industry_other) return story.industry_other
-  return INDUSTRIES[story.industry][ui]
+/** A translated option label, or null when the founder typed free text instead. */
+export function industryLabel(story: Pick<Story, 'industry'>, uiLang: Lang): string | null {
+  if (story.industry === 'other') return null
+  return INDUSTRIES[story.industry][uiLang]
 }
 
-/** Governorate (translated) for Egypt, or the free-text country for abroad. */
-export function regionLabel(
-  story: Pick<Story, 'location_type' | 'governorate' | 'country'>,
-  ui: Lang,
-): string {
-  if (story.location_type === 'egypt' && story.governorate) {
-    return GOVERNORATES[story.governorate][ui]
-  }
-  return story.country ?? ''
+/** Translated governorate for Egypt stories; null for abroad (the country is free text). */
+export function governorateLabel(story: Pick<Story, 'governorate'>, uiLang: Lang): string | null {
+  return story.governorate ? GOVERNORATES[story.governorate][uiLang] : null
 }
 
-export function capitalLabel(range: CapitalRange, ui: Lang): string {
-  return CAPITAL_RANGES[range][ui]
+/** The founder's name, or null when empty (shown as "Anonymous"). */
+export function founderName(story: Pick<Story, 'founder_name'>): string | null {
+  const name = story.founder_name?.trim()
+  return name ? name : null
 }
 
 /** "3 months", or the Egyptian Arabic form ("شهرين", "3 شهور", "11 شهر"). */
-export function formatMonths(n: number, ui: Lang): string {
-  if (ui === 'en') {
+export function formatMonths(n: number, uiLang: Lang): string {
+  if (uiLang === 'en') {
     if (n === 0) return 'less than a month'
     return n === 1 ? '1 month' : `${n} months`
   }
