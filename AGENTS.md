@@ -154,6 +154,18 @@ Story questions (free text, at least one required):
 4. How did you get your first customer?
 5. What would you tell someone starting with little money?
 
+## Synced constants
+
+Some values live in two places on purpose. Change one, change both:
+
+- **Option lists** (industries, governorates, capital ranges, money sources, work modes, outcomes, story statuses): the keys in `src/data/options.ts` and the `check` constraints on `public.stories` (a new migration in `supabase/migrations/`). A key missing from the database check makes saving fail.
+- **Story columns**: the `Story` type in `src/data/story.ts` and the `public.stories` table.
+
+## Database changes
+
+- Every schema or data change is a new SQL file in `supabase/migrations/` (named `YYYYMMDDHHMMSS_description.sql`), committed with the code, and applied to the Supabase project with the same SQL.
+- After applying, run the Supabase security advisors and test the access rules with the publishable key (reads allowed, writes blocked where expected).
+
 ## Seed data
 
 4 fictional Egyptian stories written by the agent, clearly labeled "Sample (fictional)": 3 in Arabic with English words mixed in, 1 in English. Different industries, amounts and outcomes, including one that closed.

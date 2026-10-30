@@ -30,6 +30,19 @@ export default defineConfig({
         // Single-page app: any page loads index.html when offline.
         navigateFallback: `${base}index.html`,
         globPatterns: ['**/*.{js,css,html,svg,png,ico,woff2}'],
+        // Stories are fetched fresh when online; the last copy is used offline.
+        runtimeCaching: [
+          {
+            urlPattern: ({ url }) =>
+              url.hostname.endsWith('.supabase.co') && url.pathname.startsWith('/rest/v1/stories'),
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'stories-api',
+              networkTimeoutSeconds: 5,
+              expiration: { maxEntries: 100, maxAgeSeconds: 60 * 60 * 24 * 30 },
+            },
+          },
+        ],
       },
     }),
   ],
