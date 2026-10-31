@@ -106,7 +106,7 @@ Online, installable on a phone, seeded with 4 sample stories, and the admin can 
 
 1. **Readers**: browse and read stories. No login.
 2. **Founders**: get a private invite link from the admin (sent manually, e.g. WhatsApp). No account, no email.
-3. **Admin (owner only)**: email + password login. Public sign-ups disabled in Supabase.
+3. **Admin (owner only)**: email + password login. Public sign-ups disabled in Supabase. The admin area lives at `/ar/admin` and `/en/admin`, with no link in the public header. A user is an admin only when their `auth.users` id is in `public.admins`, a table the API cannot read or write; rows are added by hand in the SQL editor. `public.is_admin()` checks `auth.uid()` against it, and every admin policy on `public.stories` uses it.
 
 ## v1 pages
 
@@ -161,6 +161,8 @@ Some values live in two places on purpose. Change one, change both:
 
 - **Option lists** (industries, governorates, capital ranges, money sources, work modes, outcomes, story statuses): the keys in `src/data/options.ts` and the `check` constraints on `public.stories` (a new migration in `supabase/migrations/`). A key missing from the database check makes saving fail.
 - **Story columns**: the `Story` type in `src/data/story.ts` and the `public.stories` table.
+- **Story field rules** (required fields, lengths, number ranges, cross-field rules): `validateStoryForm` in `src/data/storyForm.ts` mirrors the checks on `public.stories` so people get friendly messages. The database stays the authority.
+- **Constraint names**: `src/data/dbError.ts` maps named `check` constraints to friendly messages. Renaming a constraint means updating that map.
 
 ## Database changes
 
@@ -174,6 +176,14 @@ Some values live in two places on purpose. Change one, change both:
 ## Offline
 
 Stories a visitor has already opened stay readable offline, and the app shell loads offline. Submitting and editing need a connection.
+
+The service worker caches only story reads that filter on `status=eq.published` (`src/lib/storiesCache.ts`), and every public fetch sends that filter. Admin reads never do, so pending or hidden stories are never cached or shown to readers offline.
+
+## Publishing
+
+- Publishing sets `status = 'published'`; unpublishing sets `status = 'unpublished'`.
+- `published_at` is set by the database (trigger `stories_set_published_at`) on the **first** publish only and ignores any value the browser sends, so the home order stays stable when a story is unpublished and published again.
+- Only pending and unpublished stories can be deleted. A published story must be unpublished first (enforced by the delete policy).
 
 ## Not in v1
 
