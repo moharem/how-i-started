@@ -7,7 +7,6 @@ import {
   type Industry,
   type LocationType,
   type MoneySource,
-  OUTSIDE_EGYPT,
   type Outcome,
   type StoryStatus,
   type WorkMode,
@@ -87,19 +86,19 @@ export function industryPart(
 
 /**
  * Location pieces in reading order. Egypt: governorate, city. Abroad: country, city,
- * preceded by an "Outside Egypt" label when `withAbroadLabel` is set (the story page
- * says it; the short home card does not).
+ * preceded by `abroadLabel` (the translated "Outside Egypt") when given. The story
+ * page passes it; the short home card does not.
  */
 export function locationParts(
   story: Pick<Story, 'location_type' | 'governorate' | 'country' | 'city'>,
   uiLang: Lang,
-  { withAbroadLabel = false } = {},
+  { abroadLabel }: { abroadLabel?: string } = {},
 ): TextPart[] {
   const parts: TextPart[] = []
   const governorate = governorateLabel(story, uiLang)
   if (governorate) parts.push({ value: governorate, fromStory: false })
   if (story.location_type === 'abroad') {
-    if (withAbroadLabel) parts.push({ value: OUTSIDE_EGYPT[uiLang], fromStory: false })
+    if (abroadLabel) parts.push({ value: abroadLabel, fromStory: false })
     const country = story.country?.trim()
     if (country) parts.push({ value: country, fromStory: true })
   }
@@ -151,10 +150,12 @@ export function answeredQuestions(
   })
 }
 
-/** An amount in Egyptian pounds with thousands separators, e.g. "35,000 EGP" or "35,000 جنيه". */
-export function formatEgp(amount: number, uiLang: Lang): string {
-  const number = new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(amount)
-  return uiLang === 'ar' ? `${number} جنيه` : `${number} EGP`
+/**
+ * A whole number with thousands separators and Western digits in both languages,
+ * e.g. "35,000". The currency word comes from the dictionary (`t.egp`).
+ */
+export function formatAmount(amount: number): string {
+  return new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(amount)
 }
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i

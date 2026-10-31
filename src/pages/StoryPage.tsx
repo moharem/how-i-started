@@ -1,12 +1,13 @@
-import { type ReactNode, useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router'
+import { Fact } from '../components/Fact'
+import { StoryHeader } from '../components/StoryHeader'
 import { StoryText, TextParts } from '../components/StoryText'
 import { CAPITAL_RANGES, MONEY_SOURCES, OUTCOMES, WORK_MODES } from '../data/options'
 import { fetchStory } from '../data/storiesApi'
 import {
   answeredQuestions,
-  formatEgp,
-  founderName,
+  formatAmount,
   industryPart,
   locationParts,
   type ProfitStatus,
@@ -64,21 +65,10 @@ export function StoryPage() {
 
 function StoryView({ story }: { story: Story }) {
   const { t } = useLang()
-  const founder = founderName(story)
 
   return (
     <>
-      {story.is_sample && (
-        <span className="mb-2 inline-block rounded-full bg-accent/20 px-2 py-0.5 text-xs text-ink/70">
-          {t.sample}
-        </span>
-      )}
-      <h1 className="text-2xl font-bold text-brand">
-        <StoryText lang={story.lang}>{story.business_name}</StoryText>
-      </h1>
-      <p className="text-ink/70">
-        {founder ? <StoryText lang={story.lang}>{founder}</StoryText> : t.anonymous}
-      </p>
+      <StoryHeader story={story} size="page" />
 
       <StartingPoint story={story} />
 
@@ -118,11 +108,11 @@ function profitText(status: ProfitStatus, t: Dictionary): string | null {
 /** The summary card with the key numbers. */
 function StartingPoint({ story }: { story: Story }) {
   const { lang: uiLang, t } = useLang()
-  const text = (value: string) => <StoryText lang={story.lang}>{value}</StoryText>
   const profit = profitText(profitStatus(story), t)
   const currencyNote = story.currency_note?.trim()
   const stage = story.stage_now?.trim()
   const showExact = story.capital_exact !== null && story.capital_range !== 'zero'
+  const hasToday = story.team_size_now !== null || Boolean(stage)
 
   return (
     <section className="mt-6 rounded-2xl border border-ink/10 bg-white p-4 shadow-sm">
@@ -132,11 +122,13 @@ function StartingPoint({ story }: { story: Story }) {
           {CAPITAL_RANGES[story.capital_range][uiLang]}
           {showExact && (
             <span className="block font-normal text-ink/70">
-              {formatEgp(story.capital_exact ?? 0, uiLang)}
+              {t.egp(formatAmount(story.capital_exact ?? 0))}
             </span>
           )}
           {currencyNote && (
-            <span className="block font-normal text-ink/70">{text(currencyNote)}</span>
+            <span className="block font-normal text-ink/70">
+              <StoryText lang={story.lang}>{currencyNote}</StoryText>
+            </span>
           )}
         </Fact>
         <Fact label={t.firstRevenue} wide={!profit}>
@@ -159,37 +151,33 @@ function StartingPoint({ story }: { story: Story }) {
         </Fact>
         <Fact label={t.location} wide>
           <TextParts
-            parts={locationParts(story, uiLang, { withAbroadLabel: true })}
+            parts={locationParts(story, uiLang, { abroadLabel: t.outsideEgypt })}
             storyLang={story.lang}
             separator={t.listSeparator}
           />
         </Fact>
-      </dl>
-
-      <h3 className="mt-4 font-bold text-brand">{t.today}</h3>
-      <dl className="mt-2 grid grid-cols-2 gap-2 text-sm">
-        <Fact label={t.outcome} wide={story.team_size_now === null}>
+        <Fact label={t.outcome} wide>
           {OUTCOMES[story.outcome][uiLang]}
         </Fact>
-        {story.team_size_now !== null && (
-          <Fact label={t.teamNow}>{t.people(story.team_size_now)}</Fact>
-        )}
-        {stage && (
-          <Fact label={t.stageNow} wide>
-            {text(stage)}
-          </Fact>
-        )}
       </dl>
-    </section>
-  )
-}
 
-/** One labeled value in the summary card. `wide` takes the full row. */
-function Fact({ label, wide, children }: { label: string; wide?: boolean; children: ReactNode }) {
-  return (
-    <div className={`rounded-xl bg-paper p-2 ${wide ? 'col-span-2' : ''}`}>
-      <dt className="text-ink/60">{label}</dt>
-      <dd className="font-semibold">{children}</dd>
-    </div>
+      {hasToday && (
+        <>
+          <h3 className="mt-4 font-bold text-brand">{t.today}</h3>
+          <dl className="mt-2 grid grid-cols-2 gap-2 text-sm">
+            {story.team_size_now !== null && (
+              <Fact label={t.teamNow} wide={!stage}>
+                {t.people(story.team_size_now)}
+              </Fact>
+            )}
+            {stage && (
+              <Fact label={t.stageNow} wide>
+                <StoryText lang={story.lang}>{stage}</StoryText>
+              </Fact>
+            )}
+          </dl>
+        </>
+      )}
+    </section>
   )
 }

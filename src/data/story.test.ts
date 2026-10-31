@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   answeredQuestions,
-  formatEgp,
+  formatAmount,
   founderName,
   governorateLabel,
   industryLabel,
@@ -84,15 +84,15 @@ describe('locationParts', () => {
     ])
   })
 
-  it('starts with "Outside Egypt" for abroad when asked', () => {
-    expect(locationParts({ ...abroad, city: null }, 'ar', { withAbroadLabel: true })).toEqual([
+  it('starts with the abroad label for abroad stories when one is given', () => {
+    expect(locationParts({ ...abroad, city: null }, 'ar', { abroadLabel: 'برّه مصر' })).toEqual([
       { value: 'برّه مصر', fromStory: false },
       { value: 'UAE', fromStory: true },
     ])
   })
 
   it('never adds the abroad label to Egypt stories', () => {
-    const parts = locationParts({ ...egypt, city: null }, 'en', { withAbroadLabel: true })
+    const parts = locationParts({ ...egypt, city: null }, 'en', { abroadLabel: 'Outside Egypt' })
     expect(parts).toEqual([{ value: 'Alexandria', fromStory: false }])
   })
 })
@@ -156,14 +156,13 @@ describe('answeredQuestions', () => {
   })
 })
 
-describe('formatEgp', () => {
-  it('adds thousands separators and the currency in the interface language', () => {
-    expect(formatEgp(35000, 'en')).toBe('35,000 EGP')
-    expect(formatEgp(35000, 'ar')).toBe('35,000 جنيه')
+describe('formatAmount', () => {
+  it('adds thousands separators', () => {
+    expect(formatAmount(1200000)).toBe('1,200,000')
   })
 
-  it('uses Western digits in Arabic, like the rest of the app', () => {
-    expect(formatEgp(1200000, 'ar')).toBe('1,200,000 جنيه')
+  it('drops fractions', () => {
+    expect(formatAmount(35000.4)).toBe('35,000')
   })
 })
 

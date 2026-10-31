@@ -35,3 +35,13 @@ describe('people in English', () => {
   it('uses the singular for 1', () => expect(people(1)).toBe('1 person'))
   it('uses the plural above 1', () => expect(people(4)).toBe('4 people'))
 })
+
+describe('egp', () => {
+  it('puts the Arabic currency word after the amount', () => {
+    expect(dictionaries.ar.egp('35,000')).toBe('35,000 جنيه')
+  })
+
+  it('puts "EGP" after the amount in English', () => {
+    expect(dictionaries.en.egp('35,000')).toBe('35,000 EGP')
+  })
+})
