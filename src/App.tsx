@@ -9,6 +9,10 @@ function DetectLanguage() {
   return <Navigate to={`/${detectLanguage()}`} replace />
 }
 
+const loadStoryEditor = async () => ({
+  Component: (await import('./pages/admin/AdminStoryEdit')).AdminStoryEdit,
+})
+
 const router = createBrowserRouter(
   [
     { path: '/', element: <DetectLanguage /> },
@@ -18,6 +22,22 @@ const router = createBrowserRouter(
       children: [
         { index: true, element: <Home /> },
         { path: 'story/:id', element: <StoryPage /> },
+        // Admin area: reached by typing the URL. There is no link to it in the public header.
+        // Loaded on demand, so readers never download the admin code.
+        {
+          path: 'admin',
+          lazy: async () => ({ Component: (await import('./pages/admin/AdminArea')).AdminArea }),
+          children: [
+            {
+              index: true,
+              lazy: async () => ({
+                Component: (await import('./pages/admin/AdminStories')).AdminStories,
+              }),
+            },
+            { path: 'new', lazy: loadStoryEditor },
+            { path: 'story/:id', lazy: loadStoryEditor },
+          ],
+        },
         { path: '*', element: <NotFound /> },
       ],
     },

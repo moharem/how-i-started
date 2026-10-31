@@ -2,6 +2,7 @@ import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 import { defineConfig } from 'vitest/config'
+import { isCacheableStoriesRequest } from './src/lib/storiesCache.ts'
 
 // The site is served from https://moharem.github.io/how-i-started/
 const base = '/how-i-started/'
@@ -30,11 +31,11 @@ export default defineConfig({
         // Single-page app: any page loads index.html when offline.
         navigateFallback: `${base}index.html`,
         globPatterns: ['**/*.{js,css,html,svg,png,ico,woff2}'],
-        // Stories are fetched fresh when online; the last copy is used offline.
+        // Published stories are fetched fresh when online; the last copy is used offline.
+        // Admin requests (which include unpublished stories) are never cached.
         runtimeCaching: [
           {
-            urlPattern: ({ url }) =>
-              url.hostname.endsWith('.supabase.co') && url.pathname.startsWith('/rest/v1/stories'),
+            urlPattern: isCacheableStoriesRequest,
             handler: 'NetworkFirst',
             options: {
               cacheName: 'stories-api',
