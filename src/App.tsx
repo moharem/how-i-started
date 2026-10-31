@@ -3,6 +3,7 @@ import { detectLanguage } from './i18n/lang'
 import { Layout } from './Layout'
 import { Home } from './pages/Home'
 import { NotFound } from './pages/NotFound'
+import { StoryPage } from './pages/StoryPage'
 
 function DetectLanguage() {
   return <Navigate to={`/${detectLanguage()}`} replace />
@@ -16,6 +17,7 @@ const router = createBrowserRouter(
       element: <Layout />,
       children: [
         { index: true, element: <Home /> },
+        { path: 'story/:id', element: <StoryPage /> },
         { path: '*', element: <NotFound /> },
       ],
     },

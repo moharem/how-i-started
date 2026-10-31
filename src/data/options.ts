@@ -87,3 +87,6 @@ export const OUTCOMES = {
   closed: { ar: 'قفل', en: 'Closed' },
 } satisfies Labels<string>
 export type Outcome = keyof typeof OUTCOMES
+
+/** Shown before the country for stories that started outside Egypt. */
+export const OUTSIDE_EGYPT: Record<Lang, string> = { ar: 'برّه مصر', en: 'Outside Egypt' }

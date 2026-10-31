@@ -12,7 +12,6 @@ export function Layout() {
     if (!isLang(lang)) return
     document.documentElement.lang = lang
     document.documentElement.dir = dirOf(lang)
-    document.title = dictionaries[lang].appName
   }, [lang])
 
   // Unknown prefix like "/fr/..." → send to the detected language's home.

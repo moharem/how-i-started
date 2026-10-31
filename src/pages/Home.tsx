@@ -3,12 +3,14 @@ import { StoryCard } from '../components/StoryCard'
 import { fetchPublishedStories } from '../data/storiesApi'
 import type { Story } from '../data/story'
 import { useLang } from '../i18n/LangContext'
+import { usePageTitle } from '../lib/usePageTitle'
 
 type State = { kind: 'loading' } | { kind: 'error' } | { kind: 'ready'; stories: Story[] }
 
 export function Home() {
   const { t } = useLang()
   const [state, setState] = useState<State>({ kind: 'loading' })
+  usePageTitle()
 
   const load = useCallback(() => {
     setState({ kind: 'loading' })

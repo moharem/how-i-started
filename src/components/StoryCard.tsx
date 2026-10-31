@@ -1,37 +1,13 @@
-import { Fragment, type ReactNode } from 'react'
 import { Link } from 'react-router'
 import { CAPITAL_RANGES } from '../data/options'
-import { founderName, governorateLabel, industryLabel, type Story } from '../data/story'
+import { founderName, industryPart, locationParts, type Story } from '../data/story'
 import { useLang } from '../i18n/LangContext'
-import { dirOf, type Lang } from '../i18n/lang'
-
-/**
- * Text typed by the founder is in the story's language, which can differ from the
- * interface language. <bdi> with an explicit dir keeps it in the right order
- * (never dir="auto": see "Mixed text" in AGENTS.md). Translated labels are in the
- * interface language and must not be wrapped.
- */
-function StoryText({ lang, children }: { lang: Lang; children: string }) {
-  return (
-    <bdi dir={dirOf(lang)} lang={lang}>
-      {children}
-    </bdi>
-  )
-}
+import { StoryText, TextParts } from './StoryText'
 
 export function StoryCard({ story }: { story: Story }) {
   const { lang: uiLang, t } = useLang()
-  const text = (value: string) => <StoryText lang={story.lang}>{value}</StoryText>
-
   const founder = founderName(story)
-  const industry = industryLabel(story, uiLang) ?? text(story.industry_other ?? '')
-
-  // Governorate is a translated label; country and city are free text.
-  const governorate = governorateLabel(story, uiLang)
-  const locationParts: ReactNode[] = [
-    governorate ?? (story.country ? text(story.country) : null),
-    story.city ? text(story.city) : null,
-  ].filter(Boolean)
+  const location = locationParts(story, uiLang)
 
   return (
     <Link
@@ -43,18 +19,20 @@ export function StoryCard({ story }: { story: Story }) {
           {t.sample}
         </span>
       )}
-      <h2 className="text-lg font-bold text-brand">{text(story.business_name)}</h2>
-      <p className="text-sm text-ink/70">{founder ? text(founder) : t.anonymous}</p>
+      <h2 className="text-lg font-bold text-brand">
+        <StoryText lang={story.lang}>{story.business_name}</StoryText>
+      </h2>
+      <p className="text-sm text-ink/70">
+        {founder ? <StoryText lang={story.lang}>{founder}</StoryText> : t.anonymous}
+      </p>
       <p className="mt-2 text-sm text-ink/70">
-        {industry}
-        {locationParts.length > 0 && ' · '}
-        {locationParts.map((part, i) => (
-          // biome-ignore lint/suspicious/noArrayIndexKey: fixed two-item list
-          <Fragment key={i}>
-            {i > 0 && t.listSeparator}
-            {part}
-          </Fragment>
-        ))}
+        <TextParts
+          parts={[industryPart(story, uiLang)]}
+          storyLang={story.lang}
+          separator={t.listSeparator}
+        />
+        {location.length > 0 && ' · '}
+        <TextParts parts={location} storyLang={story.lang} separator={t.listSeparator} />
       </p>
       <dl className="mt-3 grid grid-cols-2 gap-2 text-sm">
         <div className="rounded-xl bg-paper p-2">
